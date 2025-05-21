@@ -164,7 +164,7 @@ if ticker:
     else:
         st.info("🔎 Renseigne des tickers pour comparer avec l’entreprise analysée.")
 
-    # Résumé
+
     # Récupérer nombre d’actions en circulation (si disponible)
     shares_outstanding = info.get("sharesOutstanding", None)
 
@@ -180,4 +180,14 @@ if ticker:
         st.warning("❗ Nombre d'actions non disponible, impossible de calculer la valorisation par action.")
         st.write(f"🏷️ Valorisation totale estimée (DCF) : **{dcf_value:,.0f} $**")
 
+# bas de page
+
+st.markdown("""
+<hr style="margin-top: 3rem; margin-bottom: 1rem; border: none; border-top: 1px solid #ccc;" />
+
+<div style="text-align: center; font-size: 0.85rem; color: #666;">
+    © 2025 <strong>May Flower</strong> by <a href="https://www.linkedin.com/in/enzo-willcox-2b44112b3/" target="_blank" style="color:#8c2118; text-decoration:none;"><strong>Enzo Willcox</strong></a><br>
+    🌐 <a href="https://www.mayflower.website/" target="_blank" style="color:#8c2118; text-decoration:none;">www.mayflower.website</a>
+</div>
+""", unsafe_allow_html=True)
 
