@@ -6,20 +6,16 @@ import plotly.graph_objects as go
 import streamlit as st
 from PIL import Image
 
-#début du code de base
 
 st.set_page_config(page_title="Valorisation d'entreprise", layout="wide")
 
-# Titre principal
 st.title("MYFLR 📈 Dashboard de Valorisation d'Entreprise (DCF & Comparables)")
 
-# Input utilisateur
-ticker = st.text_input("Entrez le ticker de l’entreprise (ex: AAPL, MSFT, TSLA)", "AAPL")
+ticker = st.text_input("Entrez le ticker de l’entreprise (ex: AAPL, MSFT, TSLA)", "AAPL") #U ask
 
 if ticker:
     stock = yf.Ticker(ticker)
 
-    # Bloc données générales
     st.header("🧾 Données financières de base")
     info = stock.info
 
@@ -34,12 +30,10 @@ if ticker:
         st.metric("Capitalisation", f"{info.get('marketCap', 'N/A'):,} $")
         st.write(f"EBITDA : {info.get('ebitda', 'N/A'):,} $")
 
-    # Bloc DCF
     st.header("💰 Hypothèses DCF ajustables")
 
     st.markdown("### 🔧 Paramètres financiers")
 
-    # FCF initial (valeur par défaut = extrait de yfinance)
     fcf = st.number_input(
         "💵 Free Cash Flow de départ ($)",
         min_value=0.0,
@@ -48,7 +42,6 @@ if ticker:
         format="%.0f"
     )
 
-    # Croissance des FCF
     growth_rate = st.number_input(
         "📈 Croissance FCF (%)",
         min_value=0.00,
@@ -58,7 +51,6 @@ if ticker:
         format="%.3f"
     )
 
-    # Taux d'actualisation
     discount_rate = st.number_input(
         "🏦 Taux d’actualisation (WACC) (%)",
         min_value=0.01,
@@ -68,7 +60,6 @@ if ticker:
         format="%.3f"
     )
 
-    # Taux terminal
     terminal_growth = st.number_input(
         "📉 Taux de croissance terminale (%)",
         min_value=0.00,
@@ -78,7 +69,6 @@ if ticker:
         format="%.3f"
     )
 
-    # Années de projection
     years = st.number_input(
         "📅 Nombre d'années de projection",
         min_value=3,
@@ -86,8 +76,7 @@ if ticker:
         value=5,
         step=1
     )
-
-    # Calcul DCF
+# calculs
     fcfs = [fcf * (1 + growth_rate) ** i for i in range(1, years + 1)]
     discounted_fcfs = [fcf / ((1 + discount_rate) ** i) for i, fcf in enumerate(fcfs, start=1)]
     terminal_value = fcfs[-1] * (1 + terminal_growth) / (discount_rate - terminal_growth)
@@ -101,7 +90,7 @@ if ticker:
     ebitdas = [fcf / ebitda_ratio for fcf in fcfs]
     cum_values = np.cumsum(discounted_fcfs).tolist()
 
-    # Construction du tableau brut
+#tableau
     columns = [f"Année {i}" for i in range(1, years + 1)] + [f"Valeur terminale (Année {years})"]
 
     df_dcf = pd.DataFrame({
@@ -111,7 +100,6 @@ if ticker:
         "EBITDA estimé ($)": ebitdas + [None]
     }, index=columns).T  # <-- TRANSPOSE pour inverser axes
 
-    # Affichage
     st.subheader("📋 Détail des flux (valeurs en lignes, années en colonnes)")
     st.dataframe(df_dcf.style.format("{:,.0f}"))
 
@@ -130,7 +118,7 @@ if ticker:
 
         comparables_data = []
 
-        # Ajouter l'entreprise principale en premier
+
         comparables_data.append({
             "Ticker": ticker.upper(),
             "Entreprise": info.get("shortName", ""),
@@ -164,8 +152,6 @@ if ticker:
     else:
         st.info("🔎 Renseigne des tickers pour comparer avec l’entreprise analysée.")
 
-
-    # Récupérer nombre d’actions en circulation (si disponible)
     shares_outstanding = info.get("sharesOutstanding", None)
 
     st.markdown("---")
